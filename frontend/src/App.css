@@ -1,0 +1,148 @@
+.app {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 3rem 1.5rem;
+}
+
+header {
+  margin-bottom: 2.5rem;
+  text-align: center;
+}
+
+header h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  background: linear-gradient(135deg, #1db954, #1ed760);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+header p {
+  margin-top: 0.5rem;
+  color: #aaa;
+  font-size: 1rem;
+}
+
+.search-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.search-form textarea {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  border-radius: 10px;
+  border: 1px solid #2a2a2a;
+  background: #1a1a1a;
+  color: #f0f0f0;
+  font-size: 1rem;
+  resize: vertical;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.search-form textarea:focus {
+  border-color: #1db954;
+}
+
+.search-form button {
+  padding: 0.875rem;
+  border-radius: 10px;
+  border: none;
+  background: #1db954;
+  color: #000;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, opacity 0.2s;
+}
+
+.search-form button:hover:not(:disabled) {
+  background: #1ed760;
+}
+
+.search-form button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.error {
+  margin-top: 1rem;
+  color: #ff4d4f;
+  font-size: 0.9rem;
+}
+
+.results {
+  margin-top: 2.5rem;
+}
+
+.results h2 {
+  font-size: 1.1rem;
+  color: #aaa;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 1rem;
+}
+
+.song-list {
+  list-style: none;
+  counter-reset: songs;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.song-list li {
+  counter-increment: songs;
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  padding: 0.75rem 1rem;
+  background: #1a1a1a;
+  border-radius: 8px;
+  border: 1px solid #2a2a2a;
+}
+
+.song-list li::before {
+  content: counter(songs);
+  font-size: 0.8rem;
+  color: #555;
+  min-width: 1.2rem;
+  text-align: right;
+}
+
+.song-list .title {
+  font-weight: 500;
+  flex: 1;
+}
+
+.song-list .artist {
+  color: #888;
+  font-size: 0.9rem;
+}
+
+.status {
+  margin-top: 1.25rem;
+  color: #888;
+  font-size: 0.9rem;
+}
+
+.playlist-btn {
+  display: inline-block;
+  margin-top: 1.5rem;
+  padding: 0.875rem 1.5rem;
+  border-radius: 10px;
+  background: #1db954;
+  color: #000;
+  font-weight: 600;
+  font-size: 1rem;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+
+.playlist-btn:hover {
+  background: #1ed760;
+}
