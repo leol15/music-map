@@ -14,6 +14,28 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Write .env to EC2
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cat > ~/prod/music-map/backend/.env << 'EOF'
+            PORT=${{ secrets.PORT }}
+            ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }}
+            GOOGLE_API_KEY=${{ secrets.GOOGLE_API_KEY }}
+            GOOGLE_MODEL=${{ secrets.GOOGLE_MODEL }}
+            SPOTIFY_CLIENT_ID=${{ secrets.SPOTIFY_CLIENT_ID }}
+            SPOTIFY_CLIENT_SECRET=${{ secrets.SPOTIFY_CLIENT_SECRET }}
+            SPOTIFY_REFRESH_TOKEN=${{ secrets.SPOTIFY_REFRESH_TOKEN }}
+            ALLOWED_ORIGINS=${{ secrets.ALLOWED_ORIGINS }}
+            LLM_PROVIDER=${{ secrets.LLM_PROVIDER }}
+            MUSIC_PROVIDER=${{ secrets.MUSIC_PROVIDER }}
+            RECOMMENDATION_COUNT=${{ secrets.RECOMMENDATION_COUNT }}
+            MOCK_RECOMMENDATIONS=${{ secrets.MOCK_RECOMMENDATIONS }}
+            EOF
+
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1
         with:
