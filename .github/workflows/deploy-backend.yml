@@ -27,7 +27,7 @@ jobs:
             git pull origin main
             cd backend
             npm ci --omit=dev
-            sudo cp "$APP_DIR/nginx/music-map.conf" /etc/nginx/conf.d/music-map.conf
+            sudo cp "$APP_DIR/nginx/music-map.conf" /etc/nginx/default.d/music-map.conf
             sudo nginx -t && sudo systemctl reload nginx
             pm2 restart music-map-backend || pm2 start src/index.js --name music-map-backend
             pm2 save

@@ -19,8 +19,17 @@ app.use(cors({
 
 app.use(express.json());
 
+app.use((req, _res, next) => {
+  console.log(`[${new Date().toISOString()}] ${req.method} ${req.path}`);
+  next();
+});
+
 app.get('/health', (_req, res) => res.json({ status: 'ok' }));
 app.use('/recommend', recommendRouter);
 app.use('/playlist', playlistRouter);
 
-app.listen(PORT, () => console.log(`music-map backend running on port ${PORT}`));
+app.listen(PORT, () => {
+  console.log(`[startup] music-map backend running on port ${PORT}`);
+  console.log(`[startup] LLM_PROVIDER=${process.env.LLM_PROVIDER || 'anthropic'}`);
+  console.log(`[startup] MUSIC_PROVIDER=${process.env.MUSIC_PROVIDER || 'spotify'}`);
+});

@@ -12,7 +12,7 @@ const http = require('http');
 const CLIENT_ID = process.env.SPOTIFY_CLIENT_ID;
 const CLIENT_SECRET = process.env.SPOTIFY_CLIENT_SECRET;
 const REDIRECT_URI = 'http://127.0.0.1:8888/callback';
-const SCOPES = 'playlist-modify-public';
+const SCOPES = 'playlist-modify-public playlist-modify-private';
 
 if (!CLIENT_ID || !CLIENT_SECRET) {
   console.error('Usage: SPOTIFY_CLIENT_ID=xxx SPOTIFY_CLIENT_SECRET=yyy node scripts/get-spotify-token.js');
