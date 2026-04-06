@@ -26,6 +26,7 @@ export default function App() {
   const [songs, setSongs] = useState([]);
   const [playlistUrl, setPlaylistUrl] = useState("");
   const [error, setError] = useState("");
+  const [errorKind, setErrorKind] = useState("error"); // "error" | "quota"
   const { history, add, remove, clear } = useHistory();
 
   async function handleSubmit(e) {
@@ -36,6 +37,7 @@ export default function App() {
 
   async function generate(p, c, provider) {
     setError("");
+    setErrorKind("error");
     setSongs([]);
     setPlaylistUrl("");
     setStep(STEPS.RECOMMENDING);
@@ -56,7 +58,14 @@ export default function App() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ songs: recommended, prompt: p, provider }),
       });
-      if (!plRes.ok) throw new Error("Failed to create playlist");
+      if (!plRes.ok) {
+        const body = await plRes.json().catch(() => ({}));
+        const msg = body.error || "Failed to create playlist";
+        if (plRes.status === 429) {
+          setErrorKind("quota");
+        }
+        throw new Error(msg);
+      }
       const { url, tracks } = await plRes.json();
 
       setSongs((prev) =>
@@ -142,7 +151,7 @@ export default function App() {
         </div>
       </form>
 
-      {error && <p className="error">{error}</p>}
+      {error && <p className={errorKind === "quota" ? "error error--quota" : "error"}>{error}</p>}
 
       {songs.length > 0 && (
         <section className="results" data-provider={resultProvider}>

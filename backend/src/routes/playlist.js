@@ -16,8 +16,11 @@ router.post('/', async (req, res) => {
     const { playlistUrl, tracks } = await getMusicProvider(provider).createPlaylist(name, description, songs);
     res.json({ url: playlistUrl, tracks });
   } catch (err) {
-    const spotifyError = err.response?.data;
-    console.error('playlist error:', err.message, spotifyError ? JSON.stringify(spotifyError) : '');
+    const providerError = err.response?.data;
+    console.error('playlist error:', err.message, providerError ? JSON.stringify(providerError) : '');
+    if (err.name === 'YouTubeQuotaError') {
+      return res.status(429).json({ error: err.message });
+    }
     res.status(500).json({ error: 'Failed to create playlist' });
   }
 });

@@ -165,6 +165,15 @@ header p {
   font-size: 0.875rem;
 }
 
+.error--quota {
+  color: #f5a623;
+  background: rgba(245, 166, 35, 0.08);
+  border: 1px solid rgba(245, 166, 35, 0.25);
+  border-radius: 8px;
+  padding: 0.625rem 0.875rem;
+  line-height: 1.5;
+}
+
 /* ── Results ─────────────────────────────────────────────────────── */
 .results {
   margin-top: 2rem;

@@ -4,6 +4,13 @@ const MusicProvider = require('./base');
 const YOUTUBE_API = 'https://www.googleapis.com/youtube/v3';
 const TOKEN_URL = 'https://oauth2.googleapis.com/token';
 
+class YouTubeQuotaError extends Error {
+  constructor() {
+    super('YouTube daily quota exceeded. The playlist could not be created — please try again tomorrow or switch to Spotify.');
+    this.name = 'YouTubeQuotaError';
+  }
+}
+
 class YouTubeProvider extends MusicProvider {
   constructor() {
     super();
@@ -34,6 +41,14 @@ class YouTubeProvider extends MusicProvider {
     return this._token;
   }
 
+  _checkQuota(err) {
+    const errors = err.response?.data?.error?.errors ?? [];
+    const isQuota = errors.some(e =>
+      e.reason === 'quotaExceeded' || e.reason === 'rateLimitExceeded'
+    );
+    if (isQuota || err.response?.status === 429) throw new YouTubeQuotaError();
+  }
+
   async _searchVideo(title, artist, token) {
     const q = `${title} ${artist} official`;
     const { data } = await axios.get(`${YOUTUBE_API}/search`, {
@@ -51,13 +66,19 @@ class YouTubeProvider extends MusicProvider {
     const token = await this._getAccessToken();
 
     // Create playlist
-    const { data: playlist } = await axios.post(`${YOUTUBE_API}/playlists`, {
-      snippet: { title: name, description },
-      status: { privacyStatus: 'unlisted' },
-    }, {
-      params: { part: 'snippet,status' },
-      headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-    });
+    let playlist;
+    try {
+      ({ data: playlist } = await axios.post(`${YOUTUBE_API}/playlists`, {
+        snippet: { title: name, description },
+        status: { privacyStatus: 'unlisted' },
+      }, {
+        params: { part: 'snippet,status' },
+        headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+      }));
+    } catch (err) {
+      this._checkQuota(err);
+      throw err;
+    }
     const playlistId = playlist.id;
     console.log(`[youtube] playlist created: ${playlistId}`);
 
@@ -68,12 +89,17 @@ class YouTubeProvider extends MusicProvider {
       const videoUrl = await this._searchVideo(title, artist, token);
       if (videoUrl) {
         const videoId = new URL(videoUrl).searchParams.get('v');
-        await axios.post(`${YOUTUBE_API}/playlistItems`, {
-          snippet: { playlistId, resourceId: { kind: 'youtube#video', videoId } },
-        }, {
-          params: { part: 'snippet' },
-          headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
-        });
+        try {
+          await axios.post(`${YOUTUBE_API}/playlistItems`, {
+            snippet: { playlistId, resourceId: { kind: 'youtube#video', videoId } },
+          }, {
+            params: { part: 'snippet' },
+            headers: { Authorization: `Bearer ${token}`, 'Content-Type': 'application/json' },
+          });
+        } catch (err) {
+          this._checkQuota(err);
+          throw err;
+        }
         matched++;
       }
       tracks.push({ title, artist, url: videoUrl });
