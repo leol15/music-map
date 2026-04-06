@@ -32,4 +32,5 @@ app.listen(PORT, () => {
   console.log(`[startup] music-map backend running on port ${PORT}`);
   console.log(`[startup] LLM_PROVIDER=${process.env.LLM_PROVIDER || 'anthropic'}`);
   console.log(`[startup] MUSIC_PROVIDER=${process.env.MUSIC_PROVIDER || 'spotify'}`);
+  console.log(`[startup] ALLOWED_ORIGINS=${process.env.ALLOWED_ORIGINS || '(none)'}`);
 });
