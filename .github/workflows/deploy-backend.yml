@@ -4,8 +4,8 @@ on:
   push:
     branches: [main]
     paths:
-      - 'backend/**'
-      - 'nginx/**'
+      - "backend/**"
+      - "nginx/**"
   workflow_dispatch:
 
 jobs:
@@ -22,7 +22,7 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             set -euo pipefail
-            APP_DIR=~/music-map
+            APP_DIR=~/prod/music-map
             cd "$APP_DIR"
             git pull origin main
             cd backend
