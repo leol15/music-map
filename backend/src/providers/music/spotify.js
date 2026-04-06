@@ -72,7 +72,7 @@ class SpotifyProvider extends MusicProvider {
     console.log(`[spotify] creating playlist for user ${user.id}`);
     const { data: playlist } = await axios.post(
       `${SPOTIFY_API}/me/playlists`,
-      { name, description, public: true },
+      { name, description, public: false },
       {
         headers: {
           Authorization: `Bearer ${token}`,
