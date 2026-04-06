@@ -29,6 +29,9 @@ jobs:
             SPOTIFY_CLIENT_ID=${{ secrets.SPOTIFY_CLIENT_ID }}
             SPOTIFY_CLIENT_SECRET=${{ secrets.SPOTIFY_CLIENT_SECRET }}
             SPOTIFY_REFRESH_TOKEN=${{ secrets.SPOTIFY_REFRESH_TOKEN }}
+            YOUTUBE_CLIENT_ID=${{ secrets.YOUTUBE_CLIENT_ID }}
+            YOUTUBE_CLIENT_SECRET=${{ secrets.YOUTUBE_CLIENT_SECRET }}
+            YOUTUBE_REFRESH_TOKEN=${{ secrets.YOUTUBE_REFRESH_TOKEN }}
             ALLOWED_ORIGINS=${{ secrets.ALLOWED_ORIGINS }}
             LLM_PROVIDER=${{ secrets.LLM_PROVIDER }}
             MUSIC_PROVIDER=${{ secrets.MUSIC_PROVIDER }}

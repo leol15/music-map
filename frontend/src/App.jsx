@@ -2,9 +2,14 @@ import { useState } from "react";
 import "./App.css";
 import History from "./History";
 import { useHistory } from "./useHistory";
+import ProviderIcon from "./ProviderIcon";
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL;
 const COUNTS = [10, 20, 50];
+const PROVIDERS = [
+  { id: "spotify", label: "Spotify" },
+  { id: "youtube", label: "YouTube" },
+];
 const STEPS = {
   IDLE: "idle",
   RECOMMENDING: "recommending",
@@ -12,21 +17,11 @@ const STEPS = {
   DONE: "done",
 };
 
-const SpotifyIcon = () => (
-  <svg
-    width="16"
-    height="16"
-    viewBox="0 0 24 24"
-    fill="currentColor"
-    aria-hidden="true"
-  >
-    <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z" />
-  </svg>
-);
-
 export default function App() {
   const [prompt, setPrompt] = useState("");
   const [count, setCount] = useState(10);
+  const [musicProvider, setMusicProvider] = useState("spotify");
+  const [resultProvider, setResultProvider] = useState("spotify");
   const [step, setStep] = useState(STEPS.IDLE);
   const [songs, setSongs] = useState([]);
   const [playlistUrl, setPlaylistUrl] = useState("");
@@ -36,10 +31,10 @@ export default function App() {
   async function handleSubmit(e) {
     e.preventDefault();
     if (!prompt.trim()) return;
-    await generate(prompt, count);
+    await generate(prompt, count, musicProvider);
   }
 
-  async function generate(p, c) {
+  async function generate(p, c, provider) {
     setError("");
     setSongs([]);
     setPlaylistUrl("");
@@ -59,21 +54,19 @@ export default function App() {
       const plRes = await fetch(`${API_BASE}/playlist`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ songs: recommended, prompt: p }),
+        body: JSON.stringify({ songs: recommended, prompt: p, provider }),
       });
       if (!plRes.ok) throw new Error("Failed to create playlist");
       const { url, tracks } = await plRes.json();
 
       setSongs((prev) =>
-        prev.map((s, i) => ({
-          ...s,
-          spotifyUrl: tracks?.[i]?.spotifyUrl ?? null,
-        }))
+        prev.map((s, i) => ({ ...s, trackUrl: tracks?.[i]?.url ?? null }))
       );
       setPlaylistUrl(url);
+      setResultProvider(provider);
       setStep(STEPS.DONE);
 
-      add({ prompt: p, count: c, playlistUrl: url });
+      add({ prompt: p, count: c, provider, playlistUrl: url });
     } catch (err) {
       setError(err.message);
       setStep(STEPS.IDLE);
@@ -83,13 +76,14 @@ export default function App() {
   function handleReuse(entry) {
     setPrompt(entry.prompt);
     setCount(entry.count);
+    if (entry.provider) setMusicProvider(entry.provider);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   const isLoading = step === STEPS.RECOMMENDING || step === STEPS.CREATING;
 
   return (
-    <div className="app">
+    <div className="app" data-provider={musicProvider}>
       <header>
         <h1>Music Map</h1>
         <p>Describe your mood or vibe and get a mysterious Spotify playlist~</p>
@@ -105,19 +99,39 @@ export default function App() {
         />
 
         <div className="form-footer">
-          <div className="count-picker">
-            {COUNTS.map((n) => (
-              <button
-                key={n}
-                type="button"
-                className={`count-btn ${count === n ? "active" : ""}`}
-                onClick={() => setCount(n)}
-                disabled={isLoading}
-              >
-                {n}
-              </button>
-            ))}
+          <div className="form-options">
+            <div className="count-picker">
+              {COUNTS.map((n) => (
+                <button
+                  key={n}
+                  type="button"
+                  className={`pill-btn ${count === n ? "active" : ""}`}
+                  onClick={() => setCount(n)}
+                  disabled={isLoading}
+                >
+                  {n}
+                </button>
+              ))}
+            </div>
+
+            <div className="provider-divider" />
+
+            <div className="provider-picker">
+              {PROVIDERS.map(({ id, label }) => (
+                <button
+                  key={id}
+                  type="button"
+                  className={`pill-btn provider-btn ${musicProvider === id ? "active" : ""}`}
+                  onClick={() => setMusicProvider(id)}
+                  disabled={isLoading}
+                >
+                  <ProviderIcon provider={id} />
+                  {label}
+                </button>
+              ))}
+            </div>
           </div>
+
           <button
             type="submit"
             className="submit-btn"
@@ -131,17 +145,13 @@ export default function App() {
       {error && <p className="error">{error}</p>}
 
       {songs.length > 0 && (
-        <section className="results">
+        <section className="results" data-provider={resultProvider}>
           <div className="results-header">
             <span className="results-label">{songs.length} songs</span>
             {playlistUrl && (
-              <a
-                className="playlist-btn"
-                href={playlistUrl}
-                target="_blank"
-                rel="noreferrer"
-              >
-                <SpotifyIcon /> Open Playlist
+              <a className="playlist-btn" href={playlistUrl} target="_blank" rel="noreferrer">
+                <ProviderIcon provider={resultProvider} />
+                Open Playlist
               </a>
             )}
           </div>
@@ -154,20 +164,12 @@ export default function App() {
                   <span className="song-title">{s.title}</span>
                   <span className="song-artist">{s.artist}</span>
                 </div>
-                {s.spotifyUrl ? (
-                  <a
-                    className="song-link"
-                    href={s.spotifyUrl}
-                    target="_blank"
-                    rel="noreferrer"
-                    title="Open on Spotify"
-                  >
-                    <SpotifyIcon />
+                {s.trackUrl ? (
+                  <a className="song-link" href={s.trackUrl} target="_blank" rel="noreferrer" title={`Open on ${resultProvider}`}>
+                    <ProviderIcon provider={resultProvider} />
                   </a>
                 ) : (
-                  step === STEPS.CREATING && (
-                    <span className="song-link-placeholder" />
-                  )
+                  step === STEPS.CREATING && <span className="song-link-placeholder" />
                 )}
               </li>
             ))}

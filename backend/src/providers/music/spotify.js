@@ -53,7 +53,7 @@ class SpotifyProvider extends MusicProvider {
     if (!track) return null;
     return {
       uri: track.uri,
-      spotifyUrl: track.external_urls?.spotify ?? null,
+      url: track.external_urls?.spotify ?? null,
     };
   }
 
@@ -85,7 +85,7 @@ class SpotifyProvider extends MusicProvider {
     const results = await Promise.all(
       songs.map(async ({ title, artist }) => {
         const match = await this._searchTrack(title, artist, token);
-        return { title, artist, spotifyUrl: match?.spotifyUrl ?? null, uri: match?.uri ?? null };
+        return { title, artist, url: match?.url ?? null, uri: match?.uri ?? null };
       })
     );
 
@@ -102,7 +102,7 @@ class SpotifyProvider extends MusicProvider {
     console.log(`[spotify] playlist ready: ${playlist.external_urls.spotify}`);
     return {
       playlistUrl: playlist.external_urls.spotify,
-      tracks: results.map(({ title, artist, spotifyUrl }) => ({ title, artist, spotifyUrl })),
+      tracks: results.map(({ title, artist, url }) => ({ title, artist, url })),
     };
   }
 }

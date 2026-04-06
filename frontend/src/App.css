@@ -1,10 +1,26 @@
+/* ── Theme variables ────────────────────────────────────────────── */
+.app {
+  --color-primary:       #1db954;
+  --color-primary-hover: #1ed760;
+  --color-primary-rgb:   29, 185, 84;
+  transition: --color-primary 0.3s;
+}
+
+.app[data-provider="youtube"],
+[data-provider="youtube"] {
+  --color-primary:       #ff0000;
+  --color-primary-hover: #cc0000;
+  --color-primary-rgb:   255, 0, 0;
+}
+
+/* ── Layout ─────────────────────────────────────────────────────── */
 .app {
   max-width: 600px;
   margin: 0 auto;
   padding: 4rem 1.5rem 6rem;
 }
 
-/* Header */
+/* ── Header ─────────────────────────────────────────────────────── */
 header {
   margin-bottom: 2.5rem;
   text-align: center;
@@ -14,11 +30,12 @@ header h1 {
   font-size: 2rem;
   font-weight: 700;
   letter-spacing: -0.5px;
-  background: linear-gradient(135deg, #1db954, #1ed760);
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-hover));
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   margin-bottom: 0.4rem;
+  transition: background 0.4s;
 }
 
 header p {
@@ -26,7 +43,7 @@ header p {
   font-size: 0.95rem;
 }
 
-/* Form */
+/* ── Form ────────────────────────────────────────────────────────── */
 .search-form {
   display: flex;
   flex-direction: column;
@@ -49,7 +66,7 @@ header p {
 }
 
 .search-form textarea:focus {
-  border-color: #1db954;
+  border-color: var(--color-primary);
 }
 
 .search-form textarea::placeholder {
@@ -63,13 +80,15 @@ header p {
   gap: 0.75rem;
 }
 
-/* Count picker */
-.count-picker {
+.form-options {
   display: flex;
-  gap: 0.375rem;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
 }
 
-.count-btn {
+/* ── Pill buttons (shared) ───────────────────────────────────────── */
+.pill-btn {
   padding: 0.4rem 0.875rem;
   border-radius: 20px;
   border: 1px solid #2a2a2a;
@@ -77,31 +96,51 @@ header p {
   color: #666;
   font-size: 0.85rem;
   cursor: pointer;
-  transition: all 0.15s;
+  transition: border-color 0.15s, color 0.15s, background 0.15s;
+  white-space: nowrap;
 }
 
-.count-btn:hover:not(:disabled) {
+.pill-btn:hover:not(:disabled) {
   border-color: #444;
   color: #ccc;
 }
 
-.count-btn.active {
-  border-color: #1db954;
-  color: #1db954;
-  background: rgba(29, 185, 84, 0.08);
+.pill-btn.active {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  background: rgba(var(--color-primary-rgb), 0.08);
 }
 
-.count-btn:disabled {
+.pill-btn:disabled {
   opacity: 0.4;
   cursor: not-allowed;
 }
 
-/* Submit */
+.count-picker,
+.provider-picker {
+  display: flex;
+  gap: 0.375rem;
+}
+
+.provider-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.provider-divider {
+  width: 1px;
+  height: 1.25rem;
+  background: #2a2a2a;
+  flex-shrink: 0;
+}
+
+/* ── Submit ──────────────────────────────────────────────────────── */
 .submit-btn {
   padding: 0.5rem 1.5rem;
   border-radius: 20px;
   border: none;
-  background: #1db954;
+  background: var(--color-primary);
   color: #000;
   font-size: 0.9rem;
   font-weight: 600;
@@ -111,7 +150,7 @@ header p {
 }
 
 .submit-btn:hover:not(:disabled) {
-  background: #1ed760;
+  background: var(--color-primary-hover);
 }
 
 .submit-btn:disabled {
@@ -119,14 +158,14 @@ header p {
   cursor: not-allowed;
 }
 
-/* Error */
+/* ── Error ───────────────────────────────────────────────────────── */
 .error {
   margin-top: 1rem;
   color: #ff4d4f;
   font-size: 0.875rem;
 }
 
-/* Results */
+/* ── Results ─────────────────────────────────────────────────────── */
 .results {
   margin-top: 2rem;
 }
@@ -151,7 +190,7 @@ header p {
   gap: 0.4rem;
   padding: 0.4rem 1rem;
   border-radius: 20px;
-  background: #1db954;
+  background: var(--color-primary);
   color: #000;
   font-weight: 600;
   font-size: 0.85rem;
@@ -160,10 +199,10 @@ header p {
 }
 
 .playlist-btn:hover {
-  background: #1ed760;
+  background: var(--color-primary-hover);
 }
 
-/* Song list */
+/* ── Song list ───────────────────────────────────────────────────── */
 .song-list {
   list-style: none;
   display: flex;
@@ -227,7 +266,7 @@ header p {
 }
 
 .song-link:hover {
-  color: #1db954;
+  color: var(--color-primary);
 }
 
 .song-link-placeholder {
@@ -235,7 +274,7 @@ header p {
   flex-shrink: 0;
 }
 
-/* History */
+/* ── History ─────────────────────────────────────────────────────── */
 .history {
   margin-top: 3rem;
   padding-top: 2rem;
@@ -329,16 +368,23 @@ header p {
 }
 
 .history-link {
-  color: #444;
+  color: #555;
   display: flex;
   align-items: center;
   text-decoration: none;
-  transition: color 0.15s;
-  padding: 0.25rem;
+  transition: color 0.15s, background 0.15s;
+  padding: 0.375rem;
+  border-radius: 6px;
 }
 
 .history-link:hover {
-  color: #1db954;
+  color: var(--color-primary);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.history-link svg {
+  width: 18px;
+  height: 18px;
 }
 
 .history-remove {
